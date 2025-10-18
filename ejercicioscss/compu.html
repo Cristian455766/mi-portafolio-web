@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dibujo de una Computadora</title>
+  <style>
+    body {
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .computadora {
+      text-align: center;
+      position: relative;
+    }
+
+    .pantalla {
+      width: 200px;
+      height: 120px;
+      background-color: cornflowerblue;
+      border: 5px solid black;
+      border-radius: 5px;
+      margin: 0 auto;
+    }
+
+    .base {
+      width: 150px;
+      height: 15px;
+      background-color: black;
+      margin: 10px auto 0;
+      border-radius: 5px;
+    }
+
+    .teclado {
+      width: 220px;
+      height: 40px;
+      background-color: black;
+      margin: 10px auto;
+      border-radius: 5px;
+      position: relative;
+    }
+
+    .mouse {
+      width: 30px;
+      height: 50px;
+      background-color: #666;
+      border-radius: 15px;
+      position: absolute;
+      top: 50%;
+      left: 100%; /* colocar a la derecha del teclado */
+      transform: translate(10px, -50%);
+    }
+  </style>
+</head>
+<body>
+  <div class="computadora">
+    <h1>Mi Computadora</h1>
+    <p> ------------------------------------</p>
+    <div class="pantalla"></div>
+    <div class="base"></div>
+    <div class="teclado">
+      <div class="mouse"></div> 
+    </div>
+  </div>
+</body>
+</html>

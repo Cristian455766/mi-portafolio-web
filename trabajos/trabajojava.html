@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .calculator {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+
+        .display {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: right;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .display:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px; /* Corregido: era 10px */
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            grid-column: span 5;
+            margin-top: 10px;
+        }
+
+        .error {
+            border-color: #f5576c !important;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .history {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .history-item {
+            padding: 5px;
+            color: #666;
+            font-size: 14px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>🧮 Calculadora</h1>
+        
+        <div class="input-group">
+            <input type="number" id="vara" placeholder="Número 1" step="any">
+            <input type="number" id="varb" placeholder="Número 2" step="any">
+        </div>
+
+        <div class="buttons">
+            <button onclick="operacion('suma')" title="Suma">+</button>
+            <button onclick="operacion('resta')" title="Resta">−</button>
+            <button onclick="operacion('multiplicacion')" title="Multiplicación">×</button>
+            <button onclick="operacion('division')" title="División">÷</button>
+            <button onclick="operacion('exponente')" title="Potencia">x^n</button>
+        </div>
+
+        <div class="result-label">Resultado:</div>
+        <input type="text" id="varc" class="display" readonly>
+
+        <button class="clear-btn" onclick="limpiar()">Limpiar</button>
+
+        <div class="history">
+            <div class="history-title">Historial</div>
+            <div id="historial"></div>
+        </div>
+    </div>
+
+    <script>
+        let historial = [];
+
+        function obtenerValores() {
+            const a = parseFloat(document.querySelector("#vara").value);
+            const b = parseFloat(document.querySelector("#varb").value);
+            return { a, b };
+        }
+
+        function mostrarResultado(resultado, operacion) {
+            const resultadoInput = document.querySelector("#varc");
+            resultadoInput.value = resultado;
+            
+            const { a, b } = obtenerValores();
+            // CORREGIDO: Se eliminó el $ incorrecto antes de la plantilla literal
+            agregarAlHistorial(`${a} ${operacion} ${b} = ${resultado}`);
+        }
+
+        function validarEntradas() {
+            const { a, b } = obtenerValores();
+            const inputA = document.querySelector("#vara");
+            const inputB = document.querySelector("#varb");
+            
+            inputA.classList.remove('error');
+            inputB.classList.remove('error');
+
+            if (isNaN(a)) {
+                inputA.classList.add('error');
+                return false;
+            }
+            if (isNaN(b)) {
+                inputB.classList.add('error');
+                return false;
+            }
+            return true;
+        }
+
+        function operacion(tipo) {
+            if (!validarEntradas()) {
+                document.querySelector("#varc").value = "Error: Ingresa números válidos";
+                return;
+            }
+
+            const { a, b } = obtenerValores();
+            let resultado;
+            let simbolo;
+
+            switch(tipo) {
+                case 'suma':
+                    resultado = a + b;
+                    simbolo = '+';
+                    break;
+                case 'resta':
+                    resultado = a - b;
+                    simbolo = '−';
+                    break;
+                case 'multiplicacion':
+                    resultado = a * b;
+                    simbolo = '×';
+                    break;
+                case 'division':
+                    if (b === 0) {
+                        document.querySelector("#varc").value = "Error: División por cero";
+                        return;
+                    }
+                    resultado = a / b;
+                    simbolo = '÷';
+                    break;
+                case 'exponente':
+                    resultado = Math.pow(a, b);
+                    simbolo = '^';
+                    break;
+            }
+
+            resultado = Math.round(resultado * 100000000) / 100000000;
+            mostrarResultado(resultado, simbolo);
+        }
+
+        function limpiar() {
+            document.querySelector("#vara").value = '';
+            document.querySelector("#varb").value = '';
+            document.querySelector("#varc").value = '';
+            document.querySelector("#vara").classList.remove('error');
+            document.querySelector("#varb").classList.remove('error');
+        }
+
+        function agregarAlHistorial(operacion) {
+            historial.unshift(operacion);
+            if (historial.length > 5) {
+                historial.pop();
+            }
+            actualizarHistorial();
+        }
+
+        function actualizarHistorial() {
+            const historialDiv = document.querySelector("#historial");
+            historialDiv.innerHTML = historial.map(item => 
+                `<div class="history-item">${item}</div>`
+            ).join('');
+        }
+
+        document.querySelector("#vara").addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector("#varb").focus();
+            }
+        });
+
+        document.querySelector("#varb").addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                operacion('suma');
+            }
+        });
+    </script>
+</body>
+</html>
